@@ -10,14 +10,17 @@
 using namespace std; ///< bad practice, but useful in examples for MHE
 
 
-int main(int argc, char** argv)
-{
+int main(int argc, char **argv) {
     //test_if_it_works();
     //auto problem = load_problem("example1.txt");
     //auto problem =
-    Working: subsetProblem({3, 34, 4, 12, 5, 2}, 9);
+    ///Working :subsetProblem({3, 4, 5, 2}, 6);
     ///Working: subsetProblem(loadProblemFromFile("../Lab3/example1.txt"),5);
-    ///Working: subsetProblem(generate_random_problem(5),7);
+    ///bool n = false;
+    ///while (!n) {
+    ///    n = subsetProblem(generate_random_problem(100, 100), 10);
+    ///}
+    hill_climb({1, 2, 3, 4, 5, 6, 7, 8}, 20, 100, 300);
     //cout << problem << endl;
     //auto cost_func = cost_function_factory(problem);
     //work_point_t sol_candidate = generate_random_tsp_point(problem);

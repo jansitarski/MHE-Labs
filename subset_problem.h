@@ -15,7 +15,9 @@ my_set loadProblemFromFile(std::string fname);
 
 bool subsetProblem(my_set set, int sum);
 
-my_set generate_random_problem(int n);
+my_set generate_random_problem(int n, int size);
+
+void hill_climb(my_set set, int sum, int q, int r);
 
 std::istream& operator>>(std::istream& stream, my_set mySet);
 

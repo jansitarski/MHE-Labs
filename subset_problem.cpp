@@ -10,10 +10,12 @@
 #include <string>
 #include <iterator>
 
+
 using namespace std;
 
 //}
-mt19937 rand_gen(1);
+random_device device;
+mt19937 rand_gen(device());
 
 //}
 
@@ -113,12 +115,80 @@ my_set loadProblemFromFile(string fname) {
 //    return o;
 //}
 
-my_set generate_random_problem(int n) {
-    uniform_int_distribution<int> distr(0, n * 2);
+void hill_climb(my_set set, int sum, int q, int r) {
+    vector<int> current;
+    size_t nelems = 1;
+    int smallestresidue = 1000;
+    int smallestsum = 0;
+    for (int i = 0; i < q; i++) {
+
+        sample(set.begin(), set.end(), back_inserter(current),
+               nelems,
+               std::mt19937{std::random_device{}()}
+        );
+        for (int j = 0; j < r; j++) {
+            vector<int> neighbor = current;
+            vector<int> randindices;
+            for (int n = 0; n < 2; n++) {
+                sample(set.begin(), set.end(), back_inserter(randindices),
+                       nelems,
+                       std::mt19937{std::random_device{}()}
+                );
+            }
+
+            auto iter = find(current.begin(), current.end(), randindices.at(0));
+            if (iter != current.end()) {
+                neighbor.erase(iter, iter);
+            } else {
+                neighbor.push_back(randindices.at(0));
+            }
+
+            bool TrueFalse = (rand() % 100) < 50;
+            iter = find(current.begin(), current.end(), randindices.at(1));
+            if (iter != current.end() && TrueFalse) {
+                neighbor.erase(iter, iter);
+            } else {
+                neighbor.push_back(randindices.at(1));
+            }
+
+            int neighsum = 0;
+            for (int num: neighbor) {
+                neighsum += num;
+            }
+            int currsum = 0;
+            for (int num: current) {
+                currsum += num;
+            }
+
+            int currentResidue = abs(currsum - sum);
+            int neightborResidue = abs(neighsum - sum);
+            if (currentResidue > neightborResidue) {
+                if (smallestresidue > neightborResidue) {
+                    smallestresidue = neightborResidue;
+                    smallestsum = neighsum;
+                }
+                current = neighbor;
+            } else {
+                if (smallestresidue > currentResidue) {
+                    smallestresidue = currentResidue;
+                    smallestsum = currsum;
+                }
+            }
+            //cout<<sum<<" : "<<currsum-sum<<endl;
+            //cout<<sum<<" : "<<neighsum-sum<<endl;
+        }
+    }
+    cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
+}
+
+
+my_set generate_random_problem(int n, int size) {
+    uniform_int_distribution<int> distr(0, size);
     my_set numbers;
     for (int i = 0; i < n; i++) {
         numbers.push_back((int) distr(rand_gen));
     }
+    std::sort(numbers.begin(), numbers.end());
     return numbers;
 }
 
@@ -128,19 +198,21 @@ std::istream &operator>>(std::istream &stream, my_set mySet) {
     return stream;
 }
 
-void printSubset(bool *arr, int n, int m) {
+void printSubset(bool *arr, my_set set, int n, int m) {
     int i, j;
-    cout << endl << "  | ";
+    //cout << endl << "  | ";
+    printf("%7s", "|");
     for (i = 1; i <= m; i++) {
         printf("%4d", i);
     }
-    cout << endl << "  | ";
+    printf("%9s", "|");
     for (i = 1; i <= m; i++) {
         printf("%4s", "-");
     }
     cout << endl;
     for (i = 0; i < n; i++) {
-        cout << i << " | ";
+        printf("%4d %s", set.at(i), " | ");
+        //cout << set.at(i) << " | ";
         for (j = 0; j < m; j++)
             printf("%4d", *((arr + i * m) + j));
         printf("\n");
@@ -167,9 +239,36 @@ bool subsetProblem(my_set set, int sum) {
         }
     }
 
-    printSubset(reinterpret_cast<bool *>(&part), n, sum);
+    //printSubset(reinterpret_cast<bool *>(&part), set, n, sum);
+    if (part[n][sum]) {
+        int i, j;
+        printf("%7s", "|");
+        for (i = 0; i <= sum; i++) {
+            printf("%4d", i);
+        }
+        cout << endl;
+        printf("%7s", "|");
+        for (i = 0; i <= sum; i++) {
+            printf("%4s", "-");
+        }
+        cout << endl;
 
-    cout << endl << part[n][sum] << endl;
+        // Add zero at the beginning to print last row of part[][]
+        set.insert(set.begin(), 0);
+
+        for (i = 0; i <= n; i++) {
+            printf("%4d %s", set.at(i), " | ");
+            for (j = 0; j <= sum; j++) {
+                printf("%4d", part[i][j]);
+                //printf("%4d%d", i,j);
+            }
+            printf("\n");
+        }
+
+        //printf("%d %s %d", n, " ", sum);
+        cout << endl << part[n][sum] << endl;
+        //cout << endl << part[3][6] << endl;
+    }
     return part[n][sum];
 }
 
