@@ -6,18 +6,16 @@
 #include <iostream>
 #include <random>
 #include <set>
-#include <sstream>
 #include <string>
 #include <iterator>
 
 
 using namespace std;
 
-//}
+
 random_device device;
 mt19937 rand_gen(device());
 
-//}
 
 my_set loadProblemFromFile(string fname) {
     int number;
@@ -37,105 +35,38 @@ my_set loadProblemFromFile(string fname) {
     return set;
 }
 
-//function<double(work_point_t)> cost_function_factory(my_graph_t tsp_problem) {
-//    return [=](work_point_t list_of_cities) -> double {
-//        double sum = 0;
-//        for (int i = 0; i < list_of_cities.size(); i++) {
-//            int city1 = list_of_cities[i], city2 = list_of_cities[(i + 1) % list_of_cities.size()];
-//            double cost = tsp_problem.at(city1).at(city2);
-//            if (cost == 0.0) throw string("no connection between cities");
-//            sum = sum + cost;
-//        }
-//        return sum;
-//    };
-//void test_if_it_works() {
-//    my_graph_t cities = {
-//            // 0    1    2    3    4
-//            {0.0, 1.0, 2.0, 5.0, 8.0}, // 0
-//            {1.0, 0.0, 4.0, 3.0, 9.0}, // 1
-//            {2.0, 4.0, 0.0, 2.0, 6.0}, // 2
-//            {5.0, 3.0, 2.0, 0.0, 3.0}, // 3
-//            {8.0, 9.0, 6.0, 3.0, 0.0}  // 4
-//    };
-//    // 1 + 4 + 2 + 3 + 8 =  20
-//
-//    auto cost_func = cost_function_factory(cities);
-//    work_point_t sol_candidate = {0, 2, 1, 3, 4};
-//    cout << "cost for: ";
-//    for (auto c: sol_candidate)
-//        cout << c << " ";
-//    cout << "is " << cost_func(sol_candidate) << endl;
-//work_point_t generate_random_tsp_point(my_graph_t problem) {
-//    vector<int> cities_to_take;
-//    work_point_t result;
-//    for (int i = 0; i < problem.size(); i++)
-//        cities_to_take.push_back(i);
-//    while (cities_to_take.size()) {
-//        uniform_int_distribution<int> distr(0, cities_to_take.size() - 1);
-//        int idx = distr(rand_gen);
-//        result.push_back(cities_to_take.at(idx));
-//        cities_to_take.erase(cities_to_take.begin() + idx);
-//    }
-//    return result;
-//work_point_t generate_first_tsp_point(my_graph_t problem) {
-//    work_point_t f;
-//    for (int i = 0; i < problem.size(); i++)
-//        f.push_back(i);
-//    return f;
-//work_point_t get_next_point(work_point_t p) {
-//    next_permutation(p.begin(), p.end());
-//    return p;
-//}
-//
-//work_point_t brute_force_tsp(my_graph_t problem, function<double(work_point_t)> cost) {
-//    work_point_t best_p = generate_first_tsp_point(problem);
-//    double best_goal_val = cost(best_p);
-//    auto p = best_p; // current work point
-//    const auto p0 = p;
-//    do {
-//        if (cost(p) < best_goal_val) {
-//            best_goal_val = cost(p);
-//            best_p = p;
-//            cout << "found better: " << best_goal_val << endl;
-//        }
-//        p = get_next_point(p);
-//    } while (!(p == p0));
-//    return best_p;
-//}
-//
-//
-//ostream &operator<<(ostream &o, const my_set mySet) {
-//    for (auto row: set<>) {
-//        o << "[ ";
-//        for (auto v: row) {
-//            o << v << " ";
-//        }
-//        o << "]" << endl;
-//    }
-//    return o;
-//}
-
 void hill_climb(my_set set, int sum, int q, int r) {
     vector<int> current;
     size_t nelems = 1;
     int smallestresidue = 1000;
     int smallestsum = 0;
     for (int i = 0; i < q; i++) {
-
+        //Choose a random subset (multiset) S′ of S as the “current” subset.
         sample(set.begin(), set.end(), back_inserter(current),
                nelems,
                std::mt19937{std::random_device{}()}
         );
         for (int j = 0; j < r; j++) {
+            //Find a random neighbor T (see definition of neighbor below) of the current subset.
             vector<int> neighbor = current;
             vector<int> randindices;
-            for (int n = 0; n < 2; n++) {
-                sample(set.begin(), set.end(), back_inserter(randindices),
-                       nelems,
-                       std::mt19937{std::random_device{}()}
-                );
-            }
+            sample(set.begin(), set.end(), back_inserter(randindices),
+                   2,
+                   std::mt19937{std::random_device{}()}
+            );
 
+
+
+            /*Subset (multiset) B ⊆S is a neighbor of a subset A of S if you can transform
+            A into B by moving one or two integers from A to B, or by moving one or two integers from
+            B to A, or by swapping one integer in A with one integer in B.
+            An easy way to generate a random neighbor B of a subset A of S is as follows:
+                1. Order the elements of S as x1, x2, ..., xn.
+                2. Initialize B to be a clone of A.
+                3. Choose two distinct random indices i and j, where 1 ≤i, j ≤n.
+                4. if xi is in A, remove it from B. Otherwise, add xi to B.
+                5. if xj is in A, then with probability 0.5, remove it from B. If xj is not in A, then with
+            probability 0.5, add xj to B.*/
             auto iter = find(current.begin(), current.end(), randindices.at(0));
             if (iter != current.end()) {
                 neighbor.erase(iter, iter);
@@ -160,8 +91,10 @@ void hill_climb(my_set set, int sum, int q, int r) {
                 currsum += num;
             }
 
+            //If neighbor T has smaller residue, then make T the current subset
             int currentResidue = abs(currsum - sum);
             int neightborResidue = abs(neighsum - sum);
+            //Keep track of the residue of the final “current” subset when starting with subset S′.
             if (currentResidue > neightborResidue) {
                 if (smallestresidue > neightborResidue) {
                     smallestresidue = neightborResidue;
@@ -178,6 +111,7 @@ void hill_climb(my_set set, int sum, int q, int r) {
             //cout<<sum<<" : "<<neighsum-sum<<endl;
         }
     }
+    //Return the smallest residue of the q subsets tested by the algorithm.
     cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
 }
 
@@ -271,50 +205,3 @@ bool subsetProblem(my_set set, int sum) {
     }
     return part[n][sum];
 }
-
-
-//}
-
-//}
-
-//}
-
-
-//}
-//
-//ostream &operator<<(ostream &o, const pair<my_graph_t, work_point_t> graph_w_solution) {
-//    /*
-//graph G {
-//  a1 -- b3 [ label="2" ];
-//  a1 -- b2;
-//}
-//    */
-//
-//    for (auto e: graph_w_solution.second) {
-//        cerr << e << " ";
-//    }
-//    cerr << endl;
-//    o << "graph G {" << endl;
-//    // not directed!!
-//    for (int row = 0; row < graph_w_solution.first.size(); row++) {
-//        for (int col = 0; col < row; col++) { // graph_w_solution.first.at(row).size(); col++) {
-//            if (graph_w_solution.first.at(row).at(col) > 0) {
-//                bool style = false;
-//                for (int i = 0; i < graph_w_solution.second.size(); i++) {
-//                    if (((graph_w_solution.second.at(i) == row) &&
-//                         (graph_w_solution.second.at((i + 1) % graph_w_solution.second.size()) == col)) ||
-//                        ((graph_w_solution.second.at(i) == col) &&
-//                         (graph_w_solution.second.at((i + 1) % graph_w_solution.second.size()) == row))) {
-//                        style = true;
-//                        break;
-//                    }
-//                }
-//                o << row << " -- " << col << " [ label=\"" << graph_w_solution.first.at(row).at(col)
-//                  << (style ? "\",color=red" : "\"") << " ]" << endl;
-//            }
-//        }
-//    }
-//
-//    o << "}" << endl;
-//    return o;
-//}
