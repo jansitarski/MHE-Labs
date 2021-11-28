@@ -42,6 +42,7 @@ void hill_climb(my_set set, int sum, int q, int r) {
     int smallestsum = 0;
     for (int i = 0; i < q; i++) {
         //Choose a random subset (multiset) S′ of S as the “current” subset.
+        current.erase(current.begin(), current.end());
         sample(set.begin(), set.end(), back_inserter(current),
                nelems,
                std::mt19937{std::random_device{}()}
@@ -54,9 +55,6 @@ void hill_climb(my_set set, int sum, int q, int r) {
                    2,
                    std::mt19937{std::random_device{}()}
             );
-
-
-
             /*Subset (multiset) B ⊆S is a neighbor of a subset A of S if you can transform
             A into B by moving one or two integers from A to B, or by moving one or two integers from
             B to A, or by swapping one integer in A with one integer in B.
@@ -115,6 +113,115 @@ void hill_climb(my_set set, int sum, int q, int r) {
     cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
 }
 
+void tabu_search(my_set set, int sum, int q, int r, int tabu_length) {
+    vector<int> current;
+    size_t nelems = 1;
+    int smallestresidue = 1000;
+    int smallestsum = 0;
+    vector<int> smallestSet;
+    vector<vector<int>> tabu;
+    tabu.push_back(current);
+    for (int i = 0; i < q; i++) {
+        //Choose a random subset (multiset) S′ of S as the “current” subset.
+        current.erase(current.begin(), current.end());
+        sample(set.begin(), set.end(), back_inserter(current),
+               nelems,
+               std::mt19937{std::random_device{}()}
+        );
+        for (int j = 0; j < r; j++) {
+            //Find a random neighbor T (see definition of neighbor below) of the current subset.
+            vector<int> neighbor = current;
+            vector<int> randindices;
+
+            //for(int x:current){
+            //    cout<<x<<" ";
+            //}
+            //cout<<endl;
+
+            sample(set.begin(), set.end(), back_inserter(randindices),
+                   2,
+                   std::mt19937{std::random_device{}()}
+            );
+            std::sort(current.begin(), current.end());
+            std::sort(neighbor.begin(), neighbor.end());
+
+            /*Subset (multiset) B ⊆S is a neighbor of a subset A of S if you can transform
+            A into B by moving one or two integers from A to B, or by moving one or two integers from
+            B to A, or by swapping one integer in A with one integer in B.
+            An easy way to generate a random neighbor B of a subset A of S is as follows:
+                1. Order the elements of S as x1, x2, ..., xn.
+                2. Initialize B to be a clone of A.
+                3. Choose two distinct random indices i and j, where 1 ≤i, j ≤n.
+                4. if xi is in A, remove it from B. Otherwise, add xi to B.
+                5. if xj is in A, then with probability 0.5, remove it from B. If xj is not in A, then with
+            probability 0.5, add xj to B.*/
+            auto iter = find(current.begin(), current.end(), randindices.at(0));
+            if (iter != current.end()) {
+                neighbor.erase(iter, iter);
+                //neighbor.erase(std::find(neighbor.begin(),neighbor.end(),randindices.at(0)));
+            } else {
+                neighbor.push_back(randindices.at(0));
+            }
+
+            bool TrueFalse = (rand() % 100) < 50;
+            iter = find(current.begin(), current.end(), randindices.at(1));
+            if (iter != current.end() && TrueFalse) {
+                neighbor.erase(iter, iter);
+                //neighbor.erase(std::find(neighbor.begin(),neighbor.end(),randindices.at(1)));
+            } else {
+                neighbor.push_back(randindices.at(1));
+            }
+
+            std::sort(neighbor.begin(), neighbor.end());
+
+            int neighsum = 0;
+            for (int num: neighbor) {
+                neighsum += num;
+            }
+            int currsum = 0;
+            for (int num: current) {
+                currsum += num;
+            }
+
+            //If neighbor T has smaller residue, then make T the current subset
+            int currentResidue = abs(currsum - sum);
+            int neightborResidue = abs(neighsum - sum);
+            //Keep track of the residue of the final “current” subset when starting with subset S′.
+
+            auto tabuIter = find(tabu.begin(), tabu.end(), neighbor);
+
+            //if (tabuIter != tabu.end()) {
+            //    cout << ".";
+            //}
+
+            if (tabuIter == tabu.end() && currentResidue > neightborResidue) {
+                if (smallestresidue > neightborResidue) {
+                    smallestresidue = neightborResidue;
+                    smallestsum = neighsum;
+                    smallestSet = neighbor;
+                }
+                current = neighbor;
+                tabu.push_back(current);
+            } else {
+                if (smallestresidue > currentResidue) {
+                    smallestresidue = currentResidue;
+                    smallestsum = currsum;
+                    smallestSet = current;
+                }
+            }
+            if (tabu.size() > tabu_length) {
+                tabu.erase(tabu.begin());
+            }
+            //cout<<sum<<" : "<<currsum-sum<<endl;
+            //cout<<sum<<" : "<<neighsum-sum<<endl;
+        }
+    }
+    //Return the smallest residue of the q subsets tested by the algorithm.
+    cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
+    for (int x: smallestSet) {
+        cout << x << " ";
+    }
+}
 
 my_set generate_random_problem(int n, int size) {
     uniform_int_distribution<int> distr(0, size);
