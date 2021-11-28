@@ -8,6 +8,7 @@
 #include <set>
 #include <string>
 #include <iterator>
+#include <chrono>
 
 
 using namespace std;
@@ -35,11 +36,14 @@ my_set loadProblemFromFile(string fname) {
     return set;
 }
 
-void hill_climb(my_set set, int sum, int q, int r) {
+void hill_climb(my_set set, int sum, int q, int r, int count, std::function<void(int c, double dt)> on_statistics,
+                std::function<void(int i, double current_goal_val, double goal_val)>
+                on_iteration) {
     vector<int> current;
     size_t nelems = 1;
     int smallestresidue = 1000;
     int smallestsum = 0;
+    auto start = chrono::steady_clock::now();
     for (int i = 0; i < q; i++) {
         //Choose a random subset (multiset) S′ of S as the “current” subset.
         current.erase(current.begin(), current.end());
@@ -109,11 +113,21 @@ void hill_climb(my_set set, int sum, int q, int r) {
             //cout<<sum<<" : "<<neighsum-sum<<endl;
         }
     }
+    auto finish = chrono::steady_clock::now();
+    chrono::duration<double> duration = finish - start;
+    on_statistics(count, duration.count());
     //Return the smallest residue of the q subsets tested by the algorithm.
-    cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
+    //cout << "result: " << sum << " : " << smallestsum << " - " << smallestresidue << endl;
+    cout << "result " << smallestresidue << endl;
+
 }
 
-void tabu_search(my_set set, int sum, int q, int r, int tabu_length) {
+void tabu_search(my_set set, int sum, int q, int r, int count, int tabu_length,
+                 std::function<void(int c, double dt)> on_statistics,
+                 std::function<void(int i, double current_goal_val, double goal_val)>
+                 on_iteration) {
+
+
     vector<int> current;
     size_t nelems = 1;
     int smallestresidue = 1000;
@@ -121,6 +135,7 @@ void tabu_search(my_set set, int sum, int q, int r, int tabu_length) {
     vector<int> smallestSet;
     vector<vector<int>> tabu;
     tabu.push_back(current);
+    auto start = chrono::steady_clock::now();
     for (int i = 0; i < q; i++) {
         //Choose a random subset (multiset) S′ of S as the “current” subset.
         current.erase(current.begin(), current.end());
@@ -216,18 +231,33 @@ void tabu_search(my_set set, int sum, int q, int r, int tabu_length) {
             //cout<<sum<<" : "<<neighsum-sum<<endl;
         }
     }
+    auto finish = chrono::steady_clock::now();
+    chrono::duration<double> duration = finish - start;
+    on_statistics(count, duration.count());
     //Return the smallest residue of the q subsets tested by the algorithm.
-    cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
-    for (int x: smallestSet) {
-        cout << x << " ";
-    }
+    //cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
+    cout << "result " << smallestresidue << endl;
+    //for (int x: smallestSet) {
+    //    cout << x << " ";
+    //}
+    //cout << endl;
+
 }
 
 my_set generate_random_problem(int n, int size) {
-    uniform_int_distribution<int> distr(0, size);
+    if (n >= size) {
+        size = n;
+    }
+    uniform_int_distribution<int> distr(1, size);
     my_set numbers;
+    int generated;
     for (int i = 0; i < n; i++) {
-        numbers.push_back((int) distr(rand_gen));
+        generated = (int) distr(rand_gen);
+        if (find(numbers.begin(), numbers.end(), generated) == numbers.end()) {
+            numbers.push_back(generated);
+        } else {
+            i--;
+        }
     }
     std::sort(numbers.begin(), numbers.end());
     return numbers;
