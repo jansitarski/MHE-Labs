@@ -1,7 +1,7 @@
 #include <iostream>
 
 #include "subset_problem.h"
-
+#include "genetic.h"
 ///Subset sum problem
 
 using namespace std; ///< bad practice, but useful in examples for MHE
@@ -12,27 +12,48 @@ int main(int argc, char **argv) {
     //    cout << argv[i] << "\n";
     //}
     int choice, n, size, sum, q, r, tabu_length, count;
-    if (argc > 8) {
+    if (argc > 1) {
         string argv1 = argv[1];
-        if (argv1 == "Hill") {
-            choice = 1;
-        } else if (argv1 == "Tabu") {
-            choice = 2;
-            tabu_length = atoi(argv[7]);
+        if (argv1 == "-f") {
+            string file = argv[2];
+            if (argc < 3) {
+                //hill_climb(loadProblemFromFile(file), 100, 10, 10, 32);
+                subsetProblem(loadProblemFromFile(file), 20);
+            } else {
+                const char *output = argv[3];
+                int value = atoi(argv[4]);
+                freopen(output, "w", stdout);
+                cout << subsetProblem(loadProblemFromFile(file), value);
+
+            }
+        } else if (argc > 8) {
+            //string argv1 = argv[1];
+            if (argv1 == "Hill") {
+                choice = 1;
+            } else if (argv1 == "Tabu") {
+                choice = 2;
+                tabu_length = atoi(argv[7]);
+            } else if (argv1 == "Genetic") {
+                choice = 3;
+            }
+            n = atoi(argv[2]);
+            size = atoi(argv[3]);
+            sum = atoi(argv[4]);
+            q = atoi(argv[5]);
+            r = atoi(argv[6]);
+            count = atoi(argv[7]);
         }
-        n = atoi(argv[2]);
-        size = atoi(argv[3]);
-        sum = atoi(argv[4]);
-        q = atoi(argv[5]);
-        r = atoi(argv[6]);
-        count = atoi(argv[7]);
     } else {
-        cout << "1.Hill, 2.Tabu" << endl;
+        cout << "1.Hill, 2.Tabu, 3.Genetic" << endl;
         cin >> choice;
         cout << "n, size, sum" << endl;
         cin >> n >> size >> sum;
-        cout << "q, r, tabu_length" << endl;
-        cin >> q >> r >> tabu_length;
+        cout << "q, r" << endl;
+        cin >> q >> r;
+        if (choice == 2) {
+            cout << "tabu_length" << endl;
+            cin >> tabu_length;
+        }
     }
 
     auto on_finish =
@@ -52,6 +73,8 @@ int main(int argc, char **argv) {
             //tabu_search({1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 20, 30, 40, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 50},204, 100, 100, 100);
             tabu_search(generate_random_problem(n, size), sum, q, r, count, tabu_length, on_finish, on_step);
             break;
+        case 3:
+            genetic_alg(10, 20, 30, one_max_function);
         default:
             break;
     }

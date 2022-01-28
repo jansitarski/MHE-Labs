@@ -20,10 +20,10 @@ void hill_climb(my_set set, int sum, int q, int r, int count,
                 std::function<void(int i, double current_goal_val, double goal_val)>
                 on_iteration = [](int i, double current_goal_val, double goal_val) {});
 
-void tabu_search(my_set set, int sum, int q, int r,
-                 int count, int tabu_length,
-                 std::function<void(int c, double dt)> on_statistics = [](int c, double dt) {},
-                 std::function<void(int i, double current_goal_val, double goal_val)>
+std::pair<int, double> tabu_search(my_set set, int sum, int q, int r,
+                                   int count, int tabu_length,
+                                   std::function<void(int c, double dt)> on_statistics = [](int c, double dt) {},
+                                   std::function<void(int i, double current_goal_val, double goal_val)>
                  on_iteration = [](int i, double current_goal_val, double goal_val) {});
 
 std::istream &operator>>(std::istream &stream, my_set mySet);

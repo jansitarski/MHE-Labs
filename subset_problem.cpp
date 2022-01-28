@@ -122,9 +122,9 @@ void hill_climb(my_set set, int sum, int q, int r, int count, std::function<void
 
 }
 
-void tabu_search(my_set set, int sum, int q, int r, int count, int tabu_length,
-                 std::function<void(int c, double dt)> on_statistics,
-                 std::function<void(int i, double current_goal_val, double goal_val)>
+pair<int, double> tabu_search(my_set set, int sum, int q, int r, int count, int tabu_length,
+                              std::function<void(int c, double dt)> on_statistics,
+                              std::function<void(int i, double current_goal_val, double goal_val)>
                  on_iteration) {
 
 
@@ -236,7 +236,8 @@ void tabu_search(my_set set, int sum, int q, int r, int count, int tabu_length,
     on_statistics(count, duration.count());
     //Return the smallest residue of the q subsets tested by the algorithm.
     //cout << sum << " : " << smallestsum << " - " << smallestresidue << endl;
-    cout << "result " << smallestresidue << endl;
+    cout << "result " << smallestresidue << " " << duration.count() << endl;
+    return make_pair(smallestresidue, duration.count());
     //for (int x: smallestSet) {
     //    cout << x << " ";
     //}
@@ -336,7 +337,7 @@ bool subsetProblem(my_set set, int sum) {
             printf("\n");
         }
 
-        //printf("%d %s %d", n, " ", sum);
+        printf("%d %s %d", n, " ", sum);
         cout << endl << part[n][sum] << endl;
         //cout << endl << part[3][6] << endl;
     }

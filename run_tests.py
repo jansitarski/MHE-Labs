@@ -5,13 +5,14 @@ import numpy as np
 statistics = {
     "Hill": [],
     "Tabu": []
+
 }
 
 count = 0
 
 for method_name in statistics:
     for problem_size in range(5, 30):
-        for repeat in range(1, 40):
+        for repeat in range(1, 10):
             count += 1
             cmndName = "./a.out " + method_name + " " + str(problem_size) + " 30 100 100 100 " + str(count) + " 10"
             # print(cmndName)
