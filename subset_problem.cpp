@@ -36,6 +36,25 @@ my_set loadProblemFromFile(string fname) {
     return set;
 }
 
+int loadProblemSizeFromFile(string fname) {
+    int sum = 0;
+    int number;
+    vector<int> set;
+
+    ifstream input_file(fname);
+    if (!input_file.is_open()) {
+        cerr << "Could not open the file - '"
+             << fname << "'" << endl;
+        return 0;
+    }
+
+    while (input_file >> number) {
+        sum++;
+    }
+    input_file.close();
+    return sum;
+}
+
 void hill_climb(my_set set, int sum, int q, int r, int count, std::function<void(int c, double dt)> on_statistics,
                 std::function<void(int i, double current_goal_val, double goal_val)>
                 on_iteration) {
@@ -125,7 +144,7 @@ void hill_climb(my_set set, int sum, int q, int r, int count, std::function<void
 pair<int, double> tabu_search(my_set set, int sum, int q, int r, int count, int tabu_length,
                               std::function<void(int c, double dt)> on_statistics,
                               std::function<void(int i, double current_goal_val, double goal_val)>
-                 on_iteration) {
+                              on_iteration) {
 
 
     vector<int> current;
@@ -178,14 +197,15 @@ pair<int, double> tabu_search(my_set set, int sum, int q, int r, int count, int 
                 neighbor.push_back(randindices.at(0));
             }
 
-            bool TrueFalse = (rand() % 100) < 50;
-            iter = find(current.begin(), current.end(), randindices.at(1));
-            if (iter != current.end() && TrueFalse) {
-                neighbor.erase(iter, iter);
-                //neighbor.erase(std::find(neighbor.begin(),neighbor.end(),randindices.at(1)));
-            } else {
-                neighbor.push_back(randindices.at(1));
-            }
+            //bool TrueFalse = (rand() % 100) < 50;
+            //iter = find(current.begin(), current.end(), randindices.at(1));
+            //if (iter != current.end() && TrueFalse) {
+            //    neighbor.erase(iter, iter);
+            //    //neighbor.erase(std::find(neighbor.begin(),neighbor.end(),randindices.at(1)));
+            //} else {
+            //    neighbor.push_back(randindices.at(1));
+            //}
+
 
             std::sort(neighbor.begin(), neighbor.end());
 
@@ -197,6 +217,22 @@ pair<int, double> tabu_search(my_set set, int sum, int q, int r, int count, int 
             for (int num: current) {
                 currsum += num;
             }
+
+            for (int num: current) {
+                if (smallestresidue > abs((neighsum + num) - sum)) {
+                    neighbor.push_back(num);
+                }
+            }
+            for (int i = 0; i < neighbor.size(); i++) {
+                if (smallestresidue > abs((neighsum - neighbor[i]) - sum)) {
+                    neighbor.erase(std::find(neighbor.begin(), neighbor.end(), neighbor[i]));
+                }
+            }
+
+            for (int num: neighbor) {
+                neighsum += num;
+            }
+
 
             //If neighbor T has smaller residue, then make T the current subset
             int currentResidue = abs(currsum - sum);
@@ -217,6 +253,11 @@ pair<int, double> tabu_search(my_set set, int sum, int q, int r, int count, int 
                 }
                 current = neighbor;
                 tabu.push_back(current);
+                cout << "( ";
+                for (auto num: smallestSet) {
+                    cout << num << " ";
+                }
+                cout << ") - " << smallestsum << endl;
             } else {
                 if (smallestresidue > currentResidue) {
                     smallestresidue = currentResidue;
@@ -224,7 +265,7 @@ pair<int, double> tabu_search(my_set set, int sum, int q, int r, int count, int 
                     smallestSet = current;
                 }
             }
-            if (tabu.size() > tabu_length) {
+            while (tabu.size() > tabu_length) {
                 tabu.erase(tabu.begin());
             }
             //cout<<sum<<" : "<<currsum-sum<<endl;
@@ -245,6 +286,7 @@ pair<int, double> tabu_search(my_set set, int sum, int q, int r, int count, int 
 
 }
 
+//TODO: gen neighbor
 my_set generate_random_problem(int n, int size) {
     if (n >= size) {
         size = n;
@@ -263,6 +305,42 @@ my_set generate_random_problem(int n, int size) {
     std::sort(numbers.begin(), numbers.end());
     return numbers;
 }
+
+my_set get_next_point(my_set p)
+{
+    next_permutation(p.begin(), p.end());
+    return p;
+}
+
+my_set next_solution(my_set set, my_set prevoiusSolution, int sum){
+    my_set working_set = set;
+    my_set next_candidate=prevoiusSolution;
+    int workingSum=0;
+    while(abs(workingSum-sum)!=0){
+        workingSum = 0;
+        next_candidate.front() = move(next_candidate.back());
+        next_candidate.pop_back();
+        int randomIndex = rand() % set.size();
+        next_candidate.push_back(set.at(randomIndex));
+        for (int num:next_candidate) {
+            workingSum+=num;
+        }
+    }
+    return next_candidate;
+}
+
+bool goal_function(my_set subset, int sum){
+    int subsetSum=0;
+    for (int num:subset) {
+        subsetSum+=num;
+    }
+    if(abs(subsetSum-sum)==0){
+        return true;
+    } else{
+        return false;
+    }
+}
+
 
 std::istream &operator>>(std::istream &stream, my_set mySet) {
     std::copy(std::istream_iterator<int>(stream), std::istream_iterator<int>(),
@@ -342,4 +420,37 @@ bool subsetProblem(my_set set, int sum) {
         //cout << endl << part[3][6] << endl;
     }
     return part[n][sum];
+}
+
+
+void bruteforce(my_set arr, my_set data, int sum,
+               int start, int end,
+               int index, int r) {
+    if (index == r) {
+        int subSum = 0;
+        for (int num: data) {
+            //cout<<num<<" ";
+            subSum += num;
+        }
+        if (abs(subSum - sum) == 0) {
+             cout<<"( ";
+            for (int num:data){
+                cout<<num<<" ";
+            }
+            cout << ") - " << abs(sum-subSum)<<endl;
+        }
+        return;
+    }
+
+
+    for (int i = start; i <= end &&
+                        end - i + 1 >= r - index; i++) {
+        if (data.size() < r) {
+            data.push_back(arr.at(i));
+        } else {
+            data.at(index) = arr.at(i);
+        }
+        bruteforce(arr, data,sum, i + 1,
+                  end, index + 1, r);
+    }
 }

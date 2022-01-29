@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 
 #include "subset_problem.h"
 #include "genetic.h"
@@ -8,22 +9,47 @@ using namespace std; ///< bad practice, but useful in examples for MHE
 
 
 int main(int argc, char **argv) {
-    //for (int i = 0; i < argc; ++i) {
-    //    cout << argv[i] << "\n";
+    my_set data;
+    //my_set data1 = generate_random_problem(30, 30);
+
+    //for (int i = 2; i < 5; i++) {
+    //    data.clear();
+    //    bruteforce(data1, data, 20,
+    //              0, data1.size()-1,
+    //              0, i);
     //}
+    //for (int num:data) {
+    //    cout<<num<<" ";
+    //}
+    //cout<<endl;
+
+
     int choice, n, size, sum, q, r, tabu_length, count;
+    //cout << argc;
     if (argc > 1) {
         string argv1 = argv[1];
         if (argv1 == "-f") {
             string file = argv[2];
-            if (argc < 3) {
-                //hill_climb(loadProblemFromFile(file), 100, 10, 10, 32);
-                subsetProblem(loadProblemFromFile(file), 20);
+            if (argc <= 3) {
+                for (int j = 2; j <= 10; j++) {
+                    data.clear();
+                    bruteforce(loadProblemFromFile(file), data, 13,
+                               0, loadProblemSizeFromFile(file)-1,
+                               0, j);
+                }
             } else {
-                const char *output = argv[3];
-                int value = atoi(argv[4]);
-                freopen(output, "w", stdout);
-                cout << subsetProblem(loadProblemFromFile(file), value);
+                string output = argv[3];
+                std::ofstream ofs{output};
+                auto cout_buff = std::cout.rdbuf();
+                std::cout.rdbuf(ofs.rdbuf());
+
+                for (int j = 2; j <= 10; j++) {
+                    data.clear();
+                    bruteforce(loadProblemFromFile(file), data, 13,
+                               0, loadProblemSizeFromFile(file)-1,
+                               0, j);
+                }
+                std::cout.rdbuf(cout_buff);
 
             }
         } else if (argc > 8) {

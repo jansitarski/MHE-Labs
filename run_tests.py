@@ -11,8 +11,8 @@ statistics = {
 count = 0
 
 for method_name in statistics:
-    for problem_size in range(5, 30):
-        for repeat in range(1, 10):
+    for problem_size in range(5, 100):
+        for repeat in range(1, 40):
             count += 1
             cmndName = "./a.out " + method_name + " " + str(problem_size) + " 30 100 100 100 " + str(count) + " 10"
             # print(cmndName)
