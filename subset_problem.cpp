@@ -341,6 +341,11 @@ bool goal_function(my_set subset, int sum){
     }
 }
 
+my_set generate_random_solution(my_set set, int length){
+    my_set output;
+    sample(set.begin(),set.end(), back_inserter(output),length,std::mt19937{std::random_device{}()});
+    return output;
+}
 
 std::istream &operator>>(std::istream &stream, my_set mySet) {
     std::copy(std::istream_iterator<int>(stream), std::istream_iterator<int>(),

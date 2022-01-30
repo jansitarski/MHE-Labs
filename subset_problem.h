@@ -6,7 +6,10 @@
 #include <vector>
 #include <string>
 
+
 using my_set = std::vector<int>;
+
+my_set generate_random_solution(my_set set, int length);
 
 my_set get_next_point(my_set p);
 
