@@ -143,7 +143,7 @@ int one_max_function(chromosome_t c, my_set set, int sum) {
     }
     return abs(chromSum-sum);
 }
-
+/*
 int main() {
     my_set set;
     set.push_back(1);
@@ -155,4 +155,5 @@ int main() {
     set.push_back(7);
     genetic_alg(set, 13, 10, set.size(), 25, one_max_function, 0.9, 0.1, tournament_selection);
     return 0;
-}
+
+ }*/

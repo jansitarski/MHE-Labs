@@ -29,6 +29,7 @@ int main(int argc, char **argv) {
     my_set problem;
     my_set solution;
     int choice, n, size, sum, q, r, tabu_length, count;
+    int pop_size,chromosome_size,iterations;
     int initial_temp;
     int temp_length;
     double cooling_ratio;
@@ -72,7 +73,7 @@ int main(int argc, char **argv) {
             }else if (argv1 == "Annealing") {
                 choice = 4;
             }
-            if(choice == 1 ||choice == 2 ||choice == 3) {
+            if(choice == 1 ||choice == 2) {
                 n = atoi(argv[2]);
                 size = atoi(argv[3]);
                 sum = atoi(argv[4]);
@@ -87,12 +88,19 @@ int main(int argc, char **argv) {
                 temp_length = atoi(argv[6]);
                 cooling_ratio = atof(argv[7]);
                 final_temp = atof(argv[8]);
+            }if(choice == 3){
+                n = atoi(argv[2]);
+                size = atoi(argv[3]);
+                sum = atoi(argv[4]);
+                pop_size = atoi(argv[5]);
+                chromosome_size = atoi(argv[6]);
+                iterations = atoi((argv[7]));
             }
         }
     } else {
         cout << "1.Hill, 2.Tabu, 3.Genetic 4.Annealing" << endl;
         cin >> choice;
-        if (choice == 1 || choice == 2 || choice == 3) {
+        if (choice == 1 || choice == 2){
             cout << "n, size, sum" << endl;
             cin >> n >> size >> sum;
             cout << "q, r" << endl;
@@ -101,6 +109,12 @@ int main(int argc, char **argv) {
         if (choice == 2) {
             cout << "tabu_length" << endl;
             cin >> tabu_length;
+        }
+        if(choice == 3){
+            cout << "n, size, sum" << endl;
+            cin >> n >> size >> sum;
+            cout<<"pop_size, chromosome_size, iterations"<<endl;
+            cin>>pop_size >> chromosome_size >> iterations;
         }
         if (choice == 4) {
             cout << "n, size, sum" << endl;
@@ -136,6 +150,7 @@ int main(int argc, char **argv) {
             tabu_search(generate_random_problem(n, size), sum, q, r, count, tabu_length, on_finish, on_step);
             break;
         case 3:
+            genetic_alg(generate_random_problem(n,size),sum,pop_size,chromosome_size,iterations);
             break;
         case 4:
             start = chrono::steady_clock::now();
