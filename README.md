@@ -1,5 +1,8 @@
 # MHE-Labs
 ## Subset sum problem
+```
+g++ subset_problem.cpp subset_problem.h genetic.cpp genetic.h annealing.cpp annealing.h main.cpp
+```
 ### Lab2
 ```
 $ ./a.out -f example1.txt
