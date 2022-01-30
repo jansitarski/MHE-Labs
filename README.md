@@ -173,6 +173,46 @@ $ ./a.out
 [9] 0:1110001 0:1110001 0:1110001 0:1110001 0:1110001 0:1110001 0:1110001 0:1110001 0:1110001 0:1110001
 ```
 ### Lab12
+```$ ./a.out 
+1.Hill, 2.Tabu, 3.Genetic 4.Annealing
+4
+n, size, sum
+10 10 13
+init_temp, temp, cooling_ratio, final_temp
+1500 500 0.1 0.01
+
+~~~Iteration: {0}~~~
+Neighbours
+( 5 7 9 ), ( 4 7 9 ), ( 4 5 9 ), ( 4 5 7 ), ( 4 5 7 9 1 ), ( 4 5 7 9 2 ), ( 4 5 7 9 3 ), ( 4 5 7 9 6 ), ( 4 5 7 9 8 ), ( 4 5 7 9 10 ), 
+Temperature: 150
+Solution: ( 4 5 7 ): 16 - 3
+Best Solution: ( 4 5 7 ): 16 - 3
+
+~~~Iteration: {1}~~~
+Neighbours
+( 5 7 ), ( 4 7 ), ( 4 5 ), ( 4 5 7 1 ), ( 4 5 7 2 ), ( 4 5 7 3 ), ( 4 5 7 6 ), ( 4 5 7 8 ), ( 4 5 7 9 ), ( 4 5 7 10 ), 
+Temperature: 15
+Solution: ( 5 7 ): 12 - 1
+Best Solution: ( 5 7 ): 12 - 1
+
+~~~Iteration: {2}~~~
+Neighbours
+( 7 ), ( 5 ), ( 5 7 1 ), ( 5 7 2 ), ( 5 7 3 ), ( 5 7 4 ), ( 5 7 6 ), ( 5 7 8 ), ( 5 7 9 ), ( 5 7 10 ), 
+Temperature: 1
+Solution: ( 5 7 1 ): 13 - 0
+Best Solution: ( 5 7 1 ): 13 - 0
+
+~~~Iteration: {3}~~~
+Neighbours
+( 7 1 ), ( 5 1 ), ( 5 7 ), ( 5 7 1 2 ), ( 5 7 1 3 ), ( 5 7 1 4 ), ( 5 7 1 6 ), ( 5 7 1 8 ), ( 5 7 1 9 ), ( 5 7 1 10 ), 
+exp: 2.26033e-06
+Temperature: 0
+Solution: ( 5 7 1 ): 13 - 0
+Best Solution: ( 5 7 1 ): 13 - 0
+# count: 0; dt:  0.000901378
+result 0
+```
+
 ```
 annealing_test.py
 rozmiar         wynik_sredni      czas
