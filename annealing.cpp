@@ -68,7 +68,7 @@ simulated_annealing(my_set set, my_set solution, my_set solution_best, int sum, 
         return solution_best;
     }
 
-    cout << "\n~~~Iteration: {" << iteration << "}~~~" << endl;
+    cout << "["<<iteration << "]" << endl;
 
     vector<my_set> hood = neighbors(set, solution);
 
